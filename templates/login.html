@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Atelier — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0e0e0e;
+  --paper:#f5f2ed;
+  --paper2:#ede9e2;
+  --gold:#b8913a;
+  --gold-light:#d4a84b;
+  --mist:#6b6560;
+  --line:rgba(184,145,58,0.18);
+  --line2:rgba(184,145,58,0.32);
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--paper);}
+body{display:flex;align-items:center;justify-content:center;}
+
+.card{
+  background:#161412;
+  border:1px solid var(--line2);
+  border-radius:12px;
+  padding:52px 48px;
+  width:100%;
+  max-width:420px;
+  text-align:center;
+}
+
+.wordmark{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;
+  font-weight:300;
+  letter-spacing:0.18em;
+  color:var(--paper);
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+.wordmark span{color:var(--gold);}
+
+.tagline{
+  font-size:11px;
+  letter-spacing:0.14em;
+  color:var(--mist);
+  text-transform:uppercase;
+  margin-bottom:40px;
+}
+
+.divider{
+  border:none;
+  border-top:1px solid var(--line);
+  margin-bottom:32px;
+}
+
+label{
+  display:block;
+  text-align:left;
+  font-size:11px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--mist);
+  margin-bottom:6px;
+}
+
+input[type="text"],
+input[type="password"]{
+  width:100%;
+  background:#1c1a17;
+  border:1px solid var(--line2);
+  border-radius:6px;
+  padding:12px 14px;
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+  color:var(--paper);
+  outline:none;
+  margin-bottom:20px;
+  transition:border-color 0.2s;
+}
+input:focus{border-color:var(--gold);}
+
+.error{
+  background:rgba(184,145,58,0.08);
+  border:1px solid rgba(184,145,58,0.3);
+  border-radius:6px;
+  padding:10px 14px;
+  font-size:13px;
+  color:var(--gold-light);
+  margin-bottom:20px;
+  text-align:left;
+}
+
+button{
+  width:100%;
+  background:var(--gold);
+  color:var(--ink);
+  border:none;
+  border-radius:6px;
+  padding:13px;
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background 0.2s;
+  margin-top:4px;
+}
+button:hover{background:var(--gold-light);}
+
+.footer{
+  margin-top:28px;
+  font-size:11px;
+  color:var(--mist);
+  letter-spacing:0.06em;
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="wordmark">Atelier<span>·</span>IQ</div>
+  <div class="tagline">Vendor Intelligence Platform</div>
+  <hr class="divider">
+
+  {% if error %}
+  <div class="error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" autocomplete="username" required>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" autocomplete="current-password" required>
+
+    <button type="submit">Sign In</button>
+  </form>
+
+  <div class="footer">Atelier &copy; 2024 &mdash; Vendor Intelligence</div>
+</div>
+</body>
+</html>

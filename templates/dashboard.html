@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Atelier — Vendor Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0e0e0e;
+  --ink2:#1c1c1c;
+  --ink3:#2a2a2a;
+  --paper:#f5f2ed;
+  --paper2:#ede9e2;
+  --paper3:#e4dfd7;
+  --gold:#b8913a;
+  --gold-light:#d4a84b;
+  --gold-dim:#7a5f24;
+  --mist:#6b6560;
+  --mist2:#8c847c;
+  --mist3:#aba39b;
+  --line:rgba(184,145,58,0.18);
+  --line2:rgba(184,145,58,0.32);
+  --r:6px;
+  --r2:12px;
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--ink);
+  color:var(--paper);
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── CUSTOM CURSOR ── */
+*{cursor:none!important;}
+#cursor{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--gold);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform 0.1s,background 0.2s;}
+#cursor-ring{position:fixed;width:28px;height:28px;border-radius:50%;border:1px solid rgba(184,145,58,0.5);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.18s ease;}
+
+/* ── HEADER ── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:58px;
+  border-bottom:1px solid var(--line);
+  flex-shrink:0;
+  background:var(--ink);
+  position:relative;z-index:10;
+}
+.wordmark{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:300;letter-spacing:0.12em;
+  color:var(--paper);
+}
+.wordmark em{color:var(--gold);font-style:normal;}
+.header-center{
+  position:absolute;left:50%;transform:translateX(-50%);
+  font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--mist3);font-weight:300;
+}
+.header-right{display:flex;align-items:center;gap:20px;}
+.hstat{text-align:right;}
+.hstat-val{font-size:16px;font-weight:500;color:var(--paper);line-height:1;}
+.hstat-lab{font-size:10px;letter-spacing:0.1em;color:var(--mist3);text-transform:uppercase;margin-top:2px;}
+.hdivider{width:1px;height:28px;background:var(--line);}
+.logout-btn{
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  padding:6px 14px;border-radius:4px;
+  border:1px solid var(--line2);
+  color:var(--mist2);background:transparent;
+  text-decoration:none;
+  transition:all 0.18s;
+}
+.logout-btn:hover{border-color:var(--gold);color:var(--gold-light);}
+
+/* ── SHELL ── */
+.shell{display:flex;flex:1;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+aside{
+  width:240px;flex-shrink:0;
+  background:var(--ink2);
+  border-right:1px solid var(--line);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+  scrollbar-width:none;
+}
+aside::-webkit-scrollbar{display:none;}
+.aside-section{padding:22px 20px;border-bottom:1px solid var(--line);}
+.aside-label{
+  font-size:9px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--gold-dim);font-weight:500;margin-bottom:14px;
+}
+.filter-name{font-size:11px;letter-spacing:0.06em;color:var(--mist2);margin-bottom:9px;font-weight:300;}
+
+/* TYPE PILLS */
+.pill-wrap{display:flex;flex-wrap:wrap;gap:5px;}
+.pill{
+  font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;
+  border:1px solid var(--line2);
+  color:var(--mist2);background:transparent;
+  transition:all 0.18s;white-space:nowrap;
+}
+.pill:hover{border-color:var(--gold-dim);color:var(--gold-light);}
+.pill.on{background:rgba(184,145,58,0.12);border-color:var(--gold);color:var(--gold-light);}
+
+/* RANGE */
+.range-wrap{margin-bottom:12px;}
+.range-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.range-val{font-size:12px;color:var(--paper);font-weight:400;}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:2px;
+  background:var(--ink3);border-radius:1px;outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--gold);border:2px solid var(--ink2);
+}
+input[type=range]::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--gold);border:2px solid var(--ink2);
+}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.toggle-label{font-size:11px;color:var(--mist2);}
+.toggle{position:relative;width:32px;height:18px;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-track{
+  position:absolute;inset:0;border-radius:9px;
+  background:var(--ink3);border:1px solid var(--line2);
+  transition:0.2s;
+}
+.toggle-thumb{
+  position:absolute;top:3px;left:3px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--mist3);transition:0.2s;
+}
+.toggle input:checked~.toggle-track{background:rgba(184,145,58,0.2);border-color:var(--gold);}
+.toggle input:checked~.toggle-thumb{left:17px;background:var(--gold);}
+
+/* SORT */
+.aside-select{
+  width:100%;padding:8px 10px;
+  border:1px solid var(--line2);border-radius:var(--r);
+  background:var(--ink3);color:var(--paper);
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  outline:none;
+}
+.aside-select option{background:var(--ink2);}
+
+/* APPLY BTN */
+.apply-btn{
+  width:100%;padding:10px;border-radius:var(--r);
+  background:linear-gradient(135deg,var(--gold-dim),var(--gold));
+  color:var(--ink);font-weight:500;font-size:12px;
+  letter-spacing:0.08em;border:none;
+  transition:opacity 0.2s;
+  font-family:'DM Sans',sans-serif;
+}
+.apply-btn:hover{opacity:0.88;}
+.reset-link{
+  display:block;text-align:center;margin-top:10px;
+  font-size:11px;color:var(--mist3);text-decoration:none;
+  letter-spacing:0.06em;
+}
+.reset-link:hover{color:var(--mist2);}
+
+/* ── MAIN ── */
+main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.main-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;border-bottom:1px solid var(--line);
+  flex-shrink:0;background:var(--ink);
+}
+.main-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;color:var(--paper);letter-spacing:0.04em;}
+.main-count{font-size:11px;color:var(--mist3);margin-left:10px;letter-spacing:0.06em;}
+.view-switch{display:flex;border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;}
+.vsw{
+  padding:5px 14px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;
+  background:transparent;border:none;color:var(--mist3);
+  transition:all 0.15s;
+}
+.vsw.on{background:rgba(184,145,58,0.14);color:var(--gold-light);}
+
+.results{flex:1;overflow-y:auto;padding:20px 24px;scrollbar-width:thin;scrollbar-color:var(--line) transparent;}
+.results::-webkit-scrollbar{width:4px;}
+.results::-webkit-scrollbar-track{background:transparent;}
+.results::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px;}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+
+.vcard{
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:var(--r2);
+  padding:18px;
+  transition:border-color 0.22s,transform 0.22s;
+  position:relative;overflow:hidden;
+}
+.vcard::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);
+  opacity:0;transition:opacity 0.22s;
+}
+.vcard:hover{border-color:var(--gold-dim);transform:translateY(-2px);}
+.vcard:hover::before{opacity:1;}
+.vcard.lit{border-color:var(--gold);box-shadow:0 0 0 1px rgba(184,145,58,0.3);}
+.vcard.lit::before{opacity:1;}
+
+.vc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.vc-left{display:flex;gap:10px;align-items:flex-start;}
+.type-gem{
+  width:34px;height:34px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:500;letter-spacing:0.06em;
+  flex-shrink:0;
+}
+.vc-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;color:var(--paper);line-height:1.2;margin-bottom:2px;}
+.vc-sub{font-size:10px;color:var(--mist3);letter-spacing:0.06em;}
+.score-ring{
+  width:42px;height:42px;flex-shrink:0;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.score-ring svg{position:absolute;inset:0;transform:rotate(-90deg);}
+.score-num{font-size:13px;font-weight:500;color:var(--gold-light);position:relative;z-index:1;}
+
+.divider{height:1px;background:var(--line);margin-bottom:12px;}
+
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.metric{background:rgba(255,255,255,0.03);border-radius:6px;padding:8px 10px;}
+.metric-val{font-size:14px;font-weight:400;color:var(--paper);line-height:1;}
+.metric-lab{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mist3);margin-top:3px;}
+
+.tags{display:flex;gap:5px;flex-wrap:wrap;}
+.tag{
+  font-size:9px;letter-spacing:0.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;
+  border:1px solid;
+}
+.tag-gold{border-color:rgba(184,145,58,0.4);color:var(--gold-light);background:rgba(184,145,58,0.08);}
+.tag-green{border-color:rgba(74,163,96,0.4);color:#7dd69a;background:rgba(74,163,96,0.08);}
+.tag-red{border-color:rgba(200,80,80,0.4);color:#e08080;background:rgba(200,80,80,0.08);}
+.tag-mist{border-color:var(--line2);color:var(--mist2);background:transparent;}
+
+/* ── LIST ── */
+.list-wrap{display:flex;flex-direction:column;gap:6px;}
+.list-head{
+  display:grid;
+  grid-template-columns:36px 1fr 100px 80px 80px 80px 70px 60px;
+  gap:12px;align-items:center;
+  padding:8px 16px;
+  font-size:9px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--mist3);border-bottom:1px solid var(--line);
+  margin-bottom:4px;
+}
+.vrow{
+  display:grid;
+  grid-template-columns:36px 1fr 100px 80px 80px 80px 70px 60px;
+  gap:12px;align-items:center;
+  padding:12px 16px;
+  background:var(--ink2);border:1px solid var(--line);
+  border-radius:var(--r);
+  transition:border-color 0.18s;
+}
+.vrow:hover{border-color:var(--gold-dim);}
+.vrow.lit{border-color:var(--gold);}
+.vrow-name{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--paper);}
+.vrow-sub{font-size:10px;color:var(--mist3);}
+.vrow-val{font-size:12px;color:var(--paper2);}
+.vrow-score{font-size:16px;font-weight:500;color:var(--gold-light);font-family:'Cormorant Garamond',serif;}
+
+/* ── CHAT ── */
+.chat-pane{
+  width:340px;flex-shrink:0;
+  border-left:1px solid var(--line);
+  display:flex;flex-direction:column;
+  background:var(--ink);
+}
+.chat-head{
+  padding:16px 18px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+}
+.chat-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(184,145,58,0.12);border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.chat-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:var(--paper);}
+.chat-sub{font-size:10px;letter-spacing:0.08em;color:var(--mist3);}
+.pulse{width:7px;height:7px;border-radius:50%;background:#4aa360;margin-left:auto;animation:pulse 2.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.85);}}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+.chat-msgs{
+  flex:1;overflow-y:auto;padding:16px;
+  display:flex;flex-direction:column;gap:12px;
+  background:rgba(0,0,0,0.18);
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--line2);}
+
+.cmsg{display:flex;gap:8px;align-items:flex-end;}
+.cmsg.user{flex-direction:row-reverse;}
+.cavatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;flex-shrink:0;}
+.cavatar.bot{background:rgba(184,145,58,0.15);border:1px solid var(--line2);color:var(--gold);}
+.cavatar.usr{background:rgba(184,145,58,0.22);color:var(--gold-light);}
+
+.cbubble{
+  max-width:83%;padding:10px 14px;
+  font-size:12.5px;line-height:1.6;
+  border-radius:14px;
+}
+.cmsg.bot .cbubble{
+  background:var(--ink2);border:1px solid var(--line);
+  color:var(--paper2);border-radius:4px 14px 14px 14px;
+}
+.cmsg.user .cbubble{
+  background:linear-gradient(135deg,var(--gold-dim),var(--gold));
+  color:var(--ink);border-radius:14px 4px 14px 14px;
+  font-weight:400;
+}
+
+/* TYPING */
+.typing-bubble{display:flex;gap:3px;padding:4px 2px;align-items:center;}
+.tdot{width:4px;height:4px;border-radius:50%;background:var(--mist3);animation:td 1.3s infinite;}
+.tdot:nth-child(2){animation-delay:0.2s;}
+.tdot:nth-child(3){animation-delay:0.4s;}
+@keyframes td{0%,60%,100%{opacity:0.2;transform:scale(0.8);}30%{opacity:1;transform:scale(1.1);}}
+
+/* VENDOR MINI CARD IN CHAT */
+.chat-vcard{
+  background:rgba(184,145,58,0.07);
+  border:1px solid rgba(184,145,58,0.22);
+  border-radius:8px;padding:10px 12px;margin:5px 0;
+}
+.cvc-name{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--paper);margin-bottom:3px;}
+.cvc-row{display:flex;justify-content:space-between;align-items:center;}
+.cvc-meta{font-size:10px;color:var(--mist3);}
+.cvc-score{font-size:15px;font-weight:500;color:var(--gold-light);font-family:'Cormorant Garamond',serif;}
+
+/* QUICK CHIPS */
+.qchips{
+  padding:10px 16px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:5px;background:var(--ink);flex-shrink:0;
+}
+.qchip{
+  font-size:10px;padding:4px 11px;border-radius:20px;
+  border:1px solid var(--line2);background:transparent;
+  color:var(--mist3);letter-spacing:0.04em;
+  transition:all 0.15s;
+}
+.qchip:hover{border-color:var(--gold-dim);color:var(--gold-light);background:rgba(184,145,58,0.06);}
+
+/* CHAT INPUT */
+.chat-input-row{
+  display:flex;gap:8px;padding:12px 16px;
+  border-top:1px solid var(--line);flex-shrink:0;
+  background:var(--ink);
+}
+.chat-input{
+  flex:1;padding:9px 13px;
+  border:1px solid var(--line2);border-radius:var(--r);
+  background:var(--ink2);color:var(--paper);
+  font-family:'DM Sans',sans-serif;font-size:12.5px;
+  outline:none;
+  transition:border-color 0.18s;
+}
+.chat-input:focus{border-color:var(--gold-dim);}
+.chat-input::placeholder{color:var(--mist3);}
+.send-btn{
+  width:36px;height:36px;border-radius:var(--r);
+  background:rgba(184,145,58,0.15);border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.18s;flex-shrink:0;
+}
+.send-btn:hover{background:rgba(184,145,58,0.28);border-color:var(--gold-dim);}
+.send-btn:disabled{opacity:0.3;}
+.send-btn svg{width:14px;height:14px;fill:var(--gold);}
+
+/* ── MODAL ── */
+.overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.7);
+  display:none;align-items:center;justify-content:center;
+  padding:24px;
+  backdrop-filter:blur(4px);
+}
+.overlay.show{display:flex;}
+.modal{
+  background:var(--ink2);
+  border:1px solid var(--line2);
+  border-radius:var(--r2);
+  width:100%;max-width:460px;
+  overflow:hidden;
+  animation:modalIn 0.22s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.96);}to{opacity:1;transform:scale(1);}}
+.modal-top{
+  padding:24px 24px 0;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.modal-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--paper);}
+.modal-close{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(255,255,255,0.05);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--mist3);line-height:1;
+}
+.modal-body{padding:16px 24px 24px;}
+.modal-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.detail-cell{background:rgba(255,255,255,0.03);border-radius:var(--r);padding:12px 14px;}
+.detail-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--paper);line-height:1;}
+.detail-lab{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mist3);margin-top:4px;}
+.bar-section{margin-top:4px;}
+.bar-row{margin-bottom:10px;}
+.bar-label-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mist2);margin-bottom:5px;}
+.bar-track{height:3px;background:var(--ink3);border-radius:2px;}
+.bar-fill{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold-dim),var(--gold-light));transition:width 0.5s ease;}
+.modal-id{font-size:10px;color:var(--mist3);letter-spacing:0.1em;margin-top:16px;}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--mist3);}
+.empty-glyph{font-family:'Cormorant Garamond',serif;font-size:48px;color:var(--gold-dim);margin-bottom:12px;line-height:1;}
+.empty-text{font-size:13px;letter-spacing:0.06em;}
+
+/* STAGGER ANIMATION */
+.vcard,.vrow{
+  animation:fadeUp 0.3s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="wordmark">at<em>e</em>lier</div>
+  <div class="header-center">Vendor Intelligence Platform</div>
+  <div class="header-right">
+    <div class="hstat"><div class="hstat-val" id="h-shown">100</div><div class="hstat-lab">Vendors</div></div>
+    <div class="hdivider"></div>
+    <div class="hstat"><div class="hstat-val" id="h-avail">99</div><div class="hstat-lab">Available</div></div>
+    <div class="hdivider"></div>
+    <div class="hstat"><div class="hstat-val" id="h-avg">4.5</div><div class="hstat-lab">Avg Rating</div></div>
+    <div class="hdivider"></div>
+    <a href="/logout" class="logout-btn">Sign Out</a>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="aside-section">
+      <div class="aside-label">Vendor Type</div>
+      <div class="pill-wrap" id="type-pills">
+        <span class="pill on" data-v="all">All</span>
+        <span class="pill" data-v="Catering">Catering</span>
+        <span class="pill" data-v="Venue">Venue</span>
+        <span class="pill" data-v="AV">AV</span>
+        <span class="pill" data-v="Decor">Decor</span>
+        <span class="pill" data-v="Entertainment">Entertain.</span>
+      </div>
+    </div>
+
+    <div class="aside-section">
+      <div class="aside-label">Event Type</div>
+      <div class="pill-wrap" id="event-pills">
+        <span class="pill on" data-v="all">All</span>
+        <span class="pill" data-v="Corporate">Corporate</span>
+        <span class="pill" data-v="Wedding">Wedding</span>
+        <span class="pill" data-v="Party">Party</span>
+      </div>
+    </div>
+
+    <div class="aside-section">
+      <div class="aside-label">Thresholds</div>
+      <div class="range-wrap">
+        <div class="range-row">
+          <span class="filter-name">Min rating</span>
+          <span class="range-val" id="rv-rating">4.0</span>
+        </div>
+        <input type="range" id="sl-rating" min="1" max="5" step="0.1" value="4.0">
+      </div>
+      <div class="range-wrap" style="margin-top:14px;">
+        <div class="range-row">
+          <span class="filter-name">Max price</span>
+          <span class="range-val" id="rv-price">$16,000</span>
+        </div>
+        <input type="range" id="sl-price" min="1400" max="16000" step="100" value="16000">
+      </div>
+    </div>
+
+    <div class="aside-section">
+      <div class="aside-label">Options</div>
+      <div class="toggle-row">
+        <span class="toggle-label">Available only</span>
+        <label class="toggle">
+          <input type="checkbox" id="avail-toggle" checked>
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="filter-name" style="margin-bottom:7px;margin-top:10px;">Sort by</div>
+      <select class="aside-select" id="sort-sel" onchange="applyFilters()">
+        <option value="score">Composite score</option>
+        <option value="rating">Rating — high to low</option>
+        <option value="price_asc">Price — low to high</option>
+        <option value="price_desc">Price — high to low</option>
+        <option value="experience">Experience</option>
+        <option value="reliability">Reliability</option>
+      </select>
+    </div>
+
+    <div class="aside-section">
+      <button class="apply-btn" onclick="applyFilters()">Apply Filters</button>
+      <a href="#" class="reset-link" onclick="event.preventDefault();resetAll()">Reset all</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="main-bar">
+      <div>
+        <span class="main-title" id="main-label">All vendors</span>
+        <span class="main-count" id="main-count">100 results</span>
+      </div>
+      <div class="view-switch">
+        <button class="vsw on" onclick="setView('grid',this)">Grid</button>
+        <button class="vsw" onclick="setView('list',this)">List</button>
+      </div>
+    </div>
+    <div class="results" id="results"></div>
+  </main>
+
+  <!-- CHAT -->
+  <div class="chat-pane">
+    <div class="chat-head">
+      <div class="chat-avatar">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 3a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0112 3v5a1.5 1.5 0 01-1.5 1.5H6L3 12V9.5H3.5A1.5 1.5 0 012 8V3z" fill="rgba(184,145,58,0.7)"/>
+        </svg>
+      </div>
+      <div>
+        <div class="chat-title">Intelligence</div>
+        <div class="chat-sub" style="letter-spacing:0.08em;">AI matching engine</div>
+      </div>
+      <div class="pulse"></div>
+    </div>
+
+    <div class="chat-msgs" id="chat-msgs"></div>
+
+    <div class="qchips" id="qchips">
+      <span class="qchip" onclick="qsend(this.textContent)">Corporate dinner $10K</span>
+      <span class="qchip" onclick="qsend(this.textContent)">Wedding venue NYC</span>
+      <span class="qchip" onclick="qsend(this.textContent)">Best AV vendors</span>
+      <span class="qchip" onclick="qsend(this.textContent)">Find caterers in Miami online</span>
+      <span class="qchip" onclick="qsend(this.textContent)">Search for wedding florists in LA</span>
+      <span class="qchip" onclick="qsend(this.textContent)">Top 3 caterers</span>
+    </div>
+
+    <div class="chat-input-row">
+      <input class="chat-input" id="cinput" placeholder="Describe your event…" onkeydown="if(event.key==='Enter')doSend()">
+      <button class="send-btn" id="sbtn" onclick="doSend()">
+        <svg viewBox="0 0 16 16"><path d="M14.5 8L1.5 1.5l3 6.5-3 6.5z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-top">
+      <div class="modal-name" id="m-name"></div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="m-body"></div>
+  </div>
+</div>
+
+<script>
+/* ─── DATA ─── */
+const VD=[{"vendor_id":"V001","vendor_name":"Elite Catering","vendor_type":"Catering","location_city":"New York","price_range":5200,"rating":4.6,"review_count":120,"experience_years":10,"event_types_supported":"Corporate","availability":true,"past_event_count":210,"reliability_score":0.92,"response_time_hours":2},{"vendor_id":"V002","vendor_name":"Grand Ballroom","vendor_type":"Venue","location_city":"New Jersey","price_range":15000,"rating":4.8,"review_count":85,"experience_years":15,"event_types_supported":"Corporate","availability":true,"past_event_count":150,"reliability_score":0.95,"response_time_hours":5},{"vendor_id":"V003","vendor_name":"AV Pro Solutions","vendor_type":"AV","location_city":"New York","price_range":3200,"rating":4.4,"review_count":60,"experience_years":8,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.89,"response_time_hours":3},{"vendor_id":"V004","vendor_name":"Floral Designs Co","vendor_type":"Decor","location_city":"Brooklyn","price_range":2100,"rating":4.5,"review_count":40,"experience_years":6,"event_types_supported":"Wedding","availability":false,"past_event_count":90,"reliability_score":0.87,"response_time_hours":6},{"vendor_id":"V005","vendor_name":"DJ Night Beats","vendor_type":"Entertainment","location_city":"NYC","price_range":1600,"rating":4.3,"review_count":110,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":250,"reliability_score":0.9,"response_time_hours":1},{"vendor_id":"V006","vendor_name":"Gourmet Bites","vendor_type":"Catering","location_city":"New Jersey","price_range":4800,"rating":4.7,"review_count":95,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":175,"reliability_score":0.91,"response_time_hours":2},{"vendor_id":"V007","vendor_name":"Urban Venue Loft","vendor_type":"Venue","location_city":"NYC","price_range":12000,"rating":4.6,"review_count":70,"experience_years":12,"event_types_supported":"Corporate","availability":true,"past_event_count":130,"reliability_score":0.93,"response_time_hours":4},{"vendor_id":"V008","vendor_name":"SoundWave AV","vendor_type":"AV","location_city":"Jersey City","price_range":2800,"rating":4.2,"review_count":50,"experience_years":6,"event_types_supported":"Corporate","availability":true,"past_event_count":140,"reliability_score":0.85,"response_time_hours":3},{"vendor_id":"V009","vendor_name":"Blossom Decor","vendor_type":"Decor","location_city":"NYC","price_range":2500,"rating":4.4,"review_count":65,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":100,"reliability_score":0.88,"response_time_hours":5},{"vendor_id":"V010","vendor_name":"Party Pulse DJ","vendor_type":"Entertainment","location_city":"Newark","price_range":1400,"rating":4.1,"review_count":90,"experience_years":5,"event_types_supported":"Party","availability":true,"past_event_count":220,"reliability_score":0.84,"response_time_hours":1},{"vendor_id":"V011","vendor_name":"Prime Catering Group","vendor_type":"Catering","location_city":"NYC","price_range":6000,"rating":4.9,"review_count":200,"experience_years":12,"event_types_supported":"Corporate","availability":true,"past_event_count":300,"reliability_score":0.97,"response_time_hours":2},{"vendor_id":"V012","vendor_name":"City Lights Venue","vendor_type":"Venue","location_city":"Brooklyn","price_range":11000,"rating":4.5,"review_count":60,"experience_years":10,"event_types_supported":"Wedding","availability":true,"past_event_count":140,"reliability_score":0.9,"response_time_hours":4},{"vendor_id":"V013","vendor_name":"EventTech AV","vendor_type":"AV","location_city":"New York","price_range":3500,"rating":4.6,"review_count":80,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":160,"reliability_score":0.92,"response_time_hours":3},{"vendor_id":"V014","vendor_name":"Decor Masters","vendor_type":"Decor","location_city":"New Jersey","price_range":2300,"rating":4.3,"review_count":55,"experience_years":6,"event_types_supported":"Wedding","availability":true,"past_event_count":110,"reliability_score":0.86,"response_time_hours":5},{"vendor_id":"V015","vendor_name":"DJ Vibes","vendor_type":"Entertainment","location_city":"NYC","price_range":1800,"rating":4.5,"review_count":130,"experience_years":8,"event_types_supported":"Party","availability":true,"past_event_count":270,"reliability_score":0.91,"response_time_hours":2},{"vendor_id":"V016","vendor_name":"Classic Catering","vendor_type":"Catering","location_city":"Newark","price_range":4500,"rating":4.4,"review_count":100,"experience_years":11,"event_types_supported":"Corporate","availability":true,"past_event_count":190,"reliability_score":0.89,"response_time_hours":3},{"vendor_id":"V017","vendor_name":"Royal Hall","vendor_type":"Venue","location_city":"Jersey City","price_range":14000,"rating":4.7,"review_count":75,"experience_years":14,"event_types_supported":"Wedding","availability":true,"past_event_count":160,"reliability_score":0.94,"response_time_hours":5},{"vendor_id":"V018","vendor_name":"ProSound AV","vendor_type":"AV","location_city":"Brooklyn","price_range":3000,"rating":4.3,"review_count":45,"experience_years":7,"event_types_supported":"Corporate","availability":true,"past_event_count":130,"reliability_score":0.87,"response_time_hours":4},{"vendor_id":"V019","vendor_name":"Flora Events","vendor_type":"Decor","location_city":"NYC","price_range":2600,"rating":4.6,"review_count":70,"experience_years":8,"event_types_supported":"Wedding","availability":true,"past_event_count":120,"reliability_score":0.9,"response_time_hours":5},{"vendor_id":"V020","vendor_name":"Beat Drop DJ","vendor_type":"Entertainment","location_city":"New York","price_range":1700,"rating":4.2,"review_count":95,"experience_years":6,"event_types_supported":"Party","availability":true,"past_event_count":210,"reliability_score":0.85,"response_time_hours":2},{"vendor_id":"V021","vendor_name":"Urban Catering","vendor_type":"Catering","location_city":"NYC","price_range":5500,"rating":4.8,"review_count":150,"experience_years":12,"event_types_supported":"Corporate","availability":true,"past_event_count":260,"reliability_score":0.95,"response_time_hours":2},{"vendor_id":"V022","vendor_name":"Metro Venue","vendor_type":"Venue","location_city":"New Jersey","price_range":13000,"rating":4.6,"review_count":85,"experience_years":13,"event_types_supported":"Corporate","availability":true,"past_event_count":170,"reliability_score":0.93,"response_time_hours":4},{"vendor_id":"V023","vendor_name":"AudioMax AV","vendor_type":"AV","location_city":"New York","price_range":3400,"rating":4.5,"review_count":75,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.91,"response_time_hours":3},{"vendor_id":"V024","vendor_name":"Design Studio Decor","vendor_type":"Decor","location_city":"Brooklyn","price_range":2400,"rating":4.4,"review_count":60,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":100,"reliability_score":0.88,"response_time_hours":6},{"vendor_id":"V025","vendor_name":"SpinMaster DJ","vendor_type":"Entertainment","location_city":"NYC","price_range":1500,"rating":4.3,"review_count":120,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":240,"reliability_score":0.89,"response_time_hours":1},{"vendor_id":"V026","vendor_name":"Catering Express","vendor_type":"Catering","location_city":"New Jersey","price_range":5000,"rating":4.5,"review_count":110,"experience_years":10,"event_types_supported":"Corporate","availability":true,"past_event_count":200,"reliability_score":0.9,"response_time_hours":2},{"vendor_id":"V027","vendor_name":"Luxury Venue Hall","vendor_type":"Venue","location_city":"NYC","price_range":16000,"rating":4.9,"review_count":95,"experience_years":15,"event_types_supported":"Wedding","availability":true,"past_event_count":180,"reliability_score":0.97,"response_time_hours":5},{"vendor_id":"V028","vendor_name":"ClearSound AV","vendor_type":"AV","location_city":"Jersey City","price_range":2900,"rating":4.2,"review_count":50,"experience_years":6,"event_types_supported":"Corporate","availability":true,"past_event_count":140,"reliability_score":0.86,"response_time_hours":3},{"vendor_id":"V029","vendor_name":"Petal Decor","vendor_type":"Decor","location_city":"New York","price_range":2200,"rating":4.3,"review_count":55,"experience_years":6,"event_types_supported":"Wedding","availability":true,"past_event_count":95,"reliability_score":0.85,"response_time_hours":6},{"vendor_id":"V030","vendor_name":"DJ Sonic","vendor_type":"Entertainment","location_city":"Newark","price_range":1400,"rating":4.1,"review_count":85,"experience_years":5,"event_types_supported":"Party","availability":true,"past_event_count":200,"reliability_score":0.84,"response_time_hours":1},{"vendor_id":"V031","vendor_name":"Chef Table Catering","vendor_type":"Catering","location_city":"NYC","price_range":6200,"rating":4.9,"review_count":180,"experience_years":13,"event_types_supported":"Corporate","availability":true,"past_event_count":280,"reliability_score":0.96,"response_time_hours":2},{"vendor_id":"V032","vendor_name":"Grand Plaza Venue","vendor_type":"Venue","location_city":"Brooklyn","price_range":12500,"rating":4.7,"review_count":70,"experience_years":12,"event_types_supported":"Corporate","availability":true,"past_event_count":150,"reliability_score":0.92,"response_time_hours":4},{"vendor_id":"V033","vendor_name":"AV Experts","vendor_type":"AV","location_city":"New York","price_range":3600,"rating":4.6,"review_count":80,"experience_years":10,"event_types_supported":"Corporate","availability":true,"past_event_count":170,"reliability_score":0.91,"response_time_hours":3},{"vendor_id":"V034","vendor_name":"Creative Decor Hub","vendor_type":"Decor","location_city":"NYC","price_range":2700,"rating":4.5,"review_count":65,"experience_years":8,"event_types_supported":"Wedding","availability":true,"past_event_count":120,"reliability_score":0.89,"response_time_hours":5},{"vendor_id":"V035","vendor_name":"DJ Nightlife","vendor_type":"Entertainment","location_city":"New Jersey","price_range":1600,"rating":4.4,"review_count":110,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":230,"reliability_score":0.88,"response_time_hours":2},{"vendor_id":"V036","vendor_name":"Fresh Feast Catering","vendor_type":"Catering","location_city":"Brooklyn","price_range":4800,"rating":4.6,"review_count":100,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":210,"reliability_score":0.9,"response_time_hours":2},{"vendor_id":"V037","vendor_name":"Elite Venue NYC","vendor_type":"Venue","location_city":"New York","price_range":15500,"rating":4.8,"review_count":90,"experience_years":14,"event_types_supported":"Wedding","availability":true,"past_event_count":170,"reliability_score":0.95,"response_time_hours":5},{"vendor_id":"V038","vendor_name":"AV Hub Solutions","vendor_type":"AV","location_city":"NYC","price_range":3100,"rating":4.3,"review_count":60,"experience_years":7,"event_types_supported":"Corporate","availability":true,"past_event_count":150,"reliability_score":0.87,"response_time_hours":3},{"vendor_id":"V039","vendor_name":"Blossom Creations","vendor_type":"Decor","location_city":"New Jersey","price_range":2500,"rating":4.4,"review_count":55,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":110,"reliability_score":0.88,"response_time_hours":6},{"vendor_id":"V040","vendor_name":"DJ Party King","vendor_type":"Entertainment","location_city":"NYC","price_range":1700,"rating":4.5,"review_count":120,"experience_years":8,"event_types_supported":"Party","availability":true,"past_event_count":260,"reliability_score":0.9,"response_time_hours":1},{"vendor_id":"V041","vendor_name":"Premium Catering","vendor_type":"Catering","location_city":"New York","price_range":5800,"rating":4.7,"review_count":140,"experience_years":11,"event_types_supported":"Corporate","availability":true,"past_event_count":240,"reliability_score":0.93,"response_time_hours":2},{"vendor_id":"V042","vendor_name":"City Grand Venue","vendor_type":"Venue","location_city":"Newark","price_range":13500,"rating":4.6,"review_count":85,"experience_years":13,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.92,"response_time_hours":4},{"vendor_id":"V043","vendor_name":"SoundTech AV","vendor_type":"AV","location_city":"Brooklyn","price_range":3300,"rating":4.5,"review_count":70,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":160,"reliability_score":0.9,"response_time_hours":3},{"vendor_id":"V044","vendor_name":"Artistic Decor","vendor_type":"Decor","location_city":"NYC","price_range":2600,"rating":4.3,"review_count":60,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":120,"reliability_score":0.87,"response_time_hours":5},{"vendor_id":"V045","vendor_name":"DJ Rhythm","vendor_type":"Entertainment","location_city":"New York","price_range":1500,"rating":4.2,"review_count":95,"experience_years":6,"event_types_supported":"Party","availability":true,"past_event_count":210,"reliability_score":0.85,"response_time_hours":2},{"vendor_id":"V046","vendor_name":"Deluxe Catering","vendor_type":"Catering","location_city":"NYC","price_range":6400,"rating":4.8,"review_count":160,"experience_years":12,"event_types_supported":"Corporate","availability":true,"past_event_count":290,"reliability_score":0.96,"response_time_hours":2},{"vendor_id":"V047","vendor_name":"Signature Venue","vendor_type":"Venue","location_city":"New Jersey","price_range":14500,"rating":4.7,"review_count":90,"experience_years":14,"event_types_supported":"Wedding","availability":true,"past_event_count":190,"reliability_score":0.94,"response_time_hours":5},{"vendor_id":"V048","vendor_name":"Pro AV Systems","vendor_type":"AV","location_city":"NYC","price_range":3500,"rating":4.5,"review_count":75,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.91,"response_time_hours":3},{"vendor_id":"V049","vendor_name":"Floral Magic","vendor_type":"Decor","location_city":"Brooklyn","price_range":2300,"rating":4.4,"review_count":60,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":110,"reliability_score":0.88,"response_time_hours":6},{"vendor_id":"V050","vendor_name":"DJ Pulse","vendor_type":"Entertainment","location_city":"NYC","price_range":1600,"rating":4.3,"review_count":100,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":220,"reliability_score":0.89,"response_time_hours":1},{"vendor_id":"V051","vendor_name":"Modern Catering","vendor_type":"Catering","location_city":"New York","price_range":5900,"rating":4.7,"review_count":140,"experience_years":11,"event_types_supported":"Corporate","availability":true,"past_event_count":250,"reliability_score":0.93,"response_time_hours":2},{"vendor_id":"V052","vendor_name":"City Hall Venue","vendor_type":"Venue","location_city":"NYC","price_range":14000,"rating":4.6,"review_count":85,"experience_years":13,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.92,"response_time_hours":4},{"vendor_id":"V053","vendor_name":"Elite AV Crew","vendor_type":"AV","location_city":"New Jersey","price_range":3300,"rating":4.4,"review_count":70,"experience_years":8,"event_types_supported":"Corporate","availability":true,"past_event_count":160,"reliability_score":0.89,"response_time_hours":3},{"vendor_id":"V054","vendor_name":"Petals & Lights","vendor_type":"Decor","location_city":"NYC","price_range":2600,"rating":4.5,"review_count":65,"experience_years":8,"event_types_supported":"Wedding","availability":true,"past_event_count":120,"reliability_score":0.9,"response_time_hours":5},{"vendor_id":"V055","vendor_name":"DJ Thunder","vendor_type":"Entertainment","location_city":"Brooklyn","price_range":1500,"rating":4.2,"review_count":95,"experience_years":6,"event_types_supported":"Party","availability":true,"past_event_count":210,"reliability_score":0.85,"response_time_hours":2},{"vendor_id":"V056","vendor_name":"Classic Feast","vendor_type":"Catering","location_city":"NYC","price_range":5200,"rating":4.6,"review_count":120,"experience_years":10,"event_types_supported":"Corporate","availability":true,"past_event_count":210,"reliability_score":0.92,"response_time_hours":2},{"vendor_id":"V057","vendor_name":"Grand Palace Venue","vendor_type":"Venue","location_city":"New Jersey","price_range":15000,"rating":4.8,"review_count":85,"experience_years":15,"event_types_supported":"Wedding","availability":true,"past_event_count":150,"reliability_score":0.95,"response_time_hours":5},{"vendor_id":"V058","vendor_name":"AudioWave AV","vendor_type":"AV","location_city":"NYC","price_range":3200,"rating":4.4,"review_count":60,"experience_years":8,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.89,"response_time_hours":3},{"vendor_id":"V059","vendor_name":"Decor Dreams","vendor_type":"Decor","location_city":"Brooklyn","price_range":2100,"rating":4.5,"review_count":40,"experience_years":6,"event_types_supported":"Wedding","availability":true,"past_event_count":90,"reliability_score":0.87,"response_time_hours":6},{"vendor_id":"V060","vendor_name":"DJ Groove","vendor_type":"Entertainment","location_city":"NYC","price_range":1600,"rating":4.3,"review_count":110,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":250,"reliability_score":0.9,"response_time_hours":1},{"vendor_id":"V061","vendor_name":"Urban Feast Catering","vendor_type":"Catering","location_city":"New York","price_range":5300,"rating":4.7,"review_count":130,"experience_years":11,"event_types_supported":"Corporate","availability":true,"past_event_count":220,"reliability_score":0.93,"response_time_hours":2},{"vendor_id":"V062","vendor_name":"Royal Venue Hall","vendor_type":"Venue","location_city":"New Jersey","price_range":15200,"rating":4.8,"review_count":88,"experience_years":15,"event_types_supported":"Wedding","availability":true,"past_event_count":160,"reliability_score":0.95,"response_time_hours":5},{"vendor_id":"V063","vendor_name":"AV Dynamics","vendor_type":"AV","location_city":"NYC","price_range":3400,"rating":4.5,"review_count":75,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.91,"response_time_hours":3},{"vendor_id":"V064","vendor_name":"Floral Elegance","vendor_type":"Decor","location_city":"Brooklyn","price_range":2400,"rating":4.4,"review_count":60,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":110,"reliability_score":0.88,"response_time_hours":6},{"vendor_id":"V065","vendor_name":"DJ Echo","vendor_type":"Entertainment","location_city":"NYC","price_range":1700,"rating":4.2,"review_count":100,"experience_years":6,"event_types_supported":"Party","availability":true,"past_event_count":220,"reliability_score":0.86,"response_time_hours":2},{"vendor_id":"V066","vendor_name":"Signature Catering","vendor_type":"Catering","location_city":"New York","price_range":6000,"rating":4.8,"review_count":150,"experience_years":12,"event_types_supported":"Corporate","availability":true,"past_event_count":260,"reliability_score":0.95,"response_time_hours":2},{"vendor_id":"V067","vendor_name":"Metro Grand Venue","vendor_type":"Venue","location_city":"NYC","price_range":14500,"rating":4.7,"review_count":90,"experience_years":14,"event_types_supported":"Corporate","availability":true,"past_event_count":190,"reliability_score":0.94,"response_time_hours":5},{"vendor_id":"V068","vendor_name":"ProSound Experts","vendor_type":"AV","location_city":"New Jersey","price_range":3300,"rating":4.5,"review_count":75,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":170,"reliability_score":0.91,"response_time_hours":3},{"vendor_id":"V069","vendor_name":"Decor Vision","vendor_type":"Decor","location_city":"Brooklyn","price_range":2500,"rating":4.4,"review_count":60,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":110,"reliability_score":0.88,"response_time_hours":6},{"vendor_id":"V070","vendor_name":"DJ Fusion","vendor_type":"Entertainment","location_city":"NYC","price_range":1600,"rating":4.3,"review_count":110,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":230,"reliability_score":0.89,"response_time_hours":1},{"vendor_id":"V071","vendor_name":"Elite Gourmet Catering","vendor_type":"Catering","location_city":"NYC","price_range":6200,"rating":4.9,"review_count":180,"experience_years":13,"event_types_supported":"Corporate","availability":true,"past_event_count":280,"reliability_score":0.96,"response_time_hours":2},{"vendor_id":"V072","vendor_name":"City Skyline Venue","vendor_type":"Venue","location_city":"New York","price_range":15500,"rating":4.8,"review_count":95,"experience_years":15,"event_types_supported":"Wedding","availability":true,"past_event_count":200,"reliability_score":0.96,"response_time_hours":5},{"vendor_id":"V073","vendor_name":"AV Tech Solutions","vendor_type":"AV","location_city":"NYC","price_range":3600,"rating":4.6,"review_count":80,"experience_years":10,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.92,"response_time_hours":3},{"vendor_id":"V074","vendor_name":"Decor Haven","vendor_type":"Decor","location_city":"Brooklyn","price_range":2600,"rating":4.5,"review_count":65,"experience_years":8,"event_types_supported":"Wedding","availability":true,"past_event_count":120,"reliability_score":0.9,"response_time_hours":5},{"vendor_id":"V075","vendor_name":"DJ Spark","vendor_type":"Entertainment","location_city":"NYC","price_range":1500,"rating":4.3,"review_count":110,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":230,"reliability_score":0.89,"response_time_hours":1},{"vendor_id":"V076","vendor_name":"Classic Events Catering","vendor_type":"Catering","location_city":"New Jersey","price_range":5500,"rating":4.7,"review_count":140,"experience_years":11,"event_types_supported":"Corporate","availability":true,"past_event_count":250,"reliability_score":0.93,"response_time_hours":2},{"vendor_id":"V077","vendor_name":"Grand Event Venue","vendor_type":"Venue","location_city":"NYC","price_range":14800,"rating":4.7,"review_count":90,"experience_years":14,"event_types_supported":"Corporate","availability":true,"past_event_count":190,"reliability_score":0.94,"response_time_hours":5},{"vendor_id":"V078","vendor_name":"AV Connect","vendor_type":"AV","location_city":"New York","price_range":3300,"rating":4.5,"review_count":75,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.91,"response_time_hours":3},{"vendor_id":"V079","vendor_name":"Decor Studio Pro","vendor_type":"Decor","location_city":"Brooklyn","price_range":2400,"rating":4.4,"review_count":60,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":110,"reliability_score":0.88,"response_time_hours":6},{"vendor_id":"V080","vendor_name":"DJ Beats","vendor_type":"Entertainment","location_city":"NYC","price_range":1600,"rating":4.3,"review_count":110,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":230,"reliability_score":0.89,"response_time_hours":1},{"vendor_id":"V081","vendor_name":"Urban Delight Catering","vendor_type":"Catering","location_city":"NYC","price_range":5800,"rating":4.8,"review_count":150,"experience_years":12,"event_types_supported":"Corporate","availability":true,"past_event_count":260,"reliability_score":0.95,"response_time_hours":2},{"vendor_id":"V082","vendor_name":"Metro Elite Venue","vendor_type":"Venue","location_city":"New Jersey","price_range":15000,"rating":4.8,"review_count":95,"experience_years":15,"event_types_supported":"Wedding","availability":true,"past_event_count":200,"reliability_score":0.96,"response_time_hours":5},{"vendor_id":"V083","vendor_name":"AV Smart Solutions","vendor_type":"AV","location_city":"NYC","price_range":3500,"rating":4.6,"review_count":80,"experience_years":10,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.92,"response_time_hours":3},{"vendor_id":"V084","vendor_name":"Decor Craft","vendor_type":"Decor","location_city":"Brooklyn","price_range":2600,"rating":4.5,"review_count":65,"experience_years":8,"event_types_supported":"Wedding","availability":true,"past_event_count":120,"reliability_score":0.9,"response_time_hours":5},{"vendor_id":"V085","vendor_name":"DJ Flow","vendor_type":"Entertainment","location_city":"NYC","price_range":1500,"rating":4.3,"review_count":110,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":230,"reliability_score":0.89,"response_time_hours":1},{"vendor_id":"V086","vendor_name":"Premium Feast Catering","vendor_type":"Catering","location_city":"New York","price_range":6300,"rating":4.9,"review_count":190,"experience_years":14,"event_types_supported":"Corporate","availability":true,"past_event_count":290,"reliability_score":0.97,"response_time_hours":2},{"vendor_id":"V087","vendor_name":"City Royal Venue","vendor_type":"Venue","location_city":"NYC","price_range":16000,"rating":4.9,"review_count":100,"experience_years":15,"event_types_supported":"Wedding","availability":true,"past_event_count":210,"reliability_score":0.97,"response_time_hours":5},{"vendor_id":"V088","vendor_name":"AV Wave","vendor_type":"AV","location_city":"New Jersey","price_range":3400,"rating":4.5,"review_count":75,"experience_years":9,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.91,"response_time_hours":3},{"vendor_id":"V089","vendor_name":"Decor Elegance Pro","vendor_type":"Decor","location_city":"Brooklyn","price_range":2500,"rating":4.4,"review_count":60,"experience_years":7,"event_types_supported":"Wedding","availability":true,"past_event_count":110,"reliability_score":0.88,"response_time_hours":6},{"vendor_id":"V090","vendor_name":"DJ Pulse Pro","vendor_type":"Entertainment","location_city":"NYC","price_range":1600,"rating":4.3,"review_count":110,"experience_years":7,"event_types_supported":"Party","availability":true,"past_event_count":230,"reliability_score":0.89,"response_time_hours":1},{"vendor_id":"V091","vendor_name":"Ultimate Catering","vendor_type":"Catering","location_city":"NYC","price_range":6500,"rating":4.9,"review_count":220,"experience_years":15,"event_types_supported":"Corporate","availability":true,"past_event_count":320,"reliability_score":0.98,"response_time_hours":2},{"vendor_id":"V092","vendor_name":"Elite Grand Venue","vendor_type":"Venue","location_city":"New York","price_range":15500,"rating":4.8,"review_count":95,"experience_years":15,"event_types_supported":"Corporate","availability":true,"past_event_count":200,"reliability_score":0.96,"response_time_hours":5},{"vendor_id":"V093","vendor_name":"AV Core Solutions","vendor_type":"AV","location_city":"NYC","price_range":3600,"rating":4.6,"review_count":85,"experience_years":10,"event_types_supported":"Corporate","availability":true,"past_event_count":190,"reliability_score":0.92,"response_time_hours":3},{"vendor_id":"V094","vendor_name":"Decor Innovations","vendor_type":"Decor","location_city":"Brooklyn","price_range":2700,"rating":4.5,"review_count":70,"experience_years":8,"event_types_supported":"Wedding","availability":true,"past_event_count":130,"reliability_score":0.9,"response_time_hours":5},{"vendor_id":"V095","vendor_name":"DJ Energy","vendor_type":"Entertainment","location_city":"NYC","price_range":1700,"rating":4.4,"review_count":115,"experience_years":8,"event_types_supported":"Party","availability":true,"past_event_count":240,"reliability_score":0.91,"response_time_hours":1},{"vendor_id":"V096","vendor_name":"Gourmet Elite Catering","vendor_type":"Catering","location_city":"New Jersey","price_range":6000,"rating":4.8,"review_count":160,"experience_years":13,"event_types_supported":"Corporate","availability":true,"past_event_count":280,"reliability_score":0.95,"response_time_hours":2},{"vendor_id":"V097","vendor_name":"Royal Skyline Venue","vendor_type":"Venue","location_city":"NYC","price_range":15800,"rating":4.9,"review_count":100,"experience_years":15,"event_types_supported":"Wedding","availability":true,"past_event_count":210,"reliability_score":0.97,"response_time_hours":5},{"vendor_id":"V098","vendor_name":"AV Max Solutions","vendor_type":"AV","location_city":"New York","price_range":3500,"rating":4.6,"review_count":80,"experience_years":10,"event_types_supported":"Corporate","availability":true,"past_event_count":180,"reliability_score":0.92,"response_time_hours":3},{"vendor_id":"V099","vendor_name":"Decor Luxe","vendor_type":"Decor","location_city":"Brooklyn","price_range":2600,"rating":4.5,"review_count":65,"experience_years":8,"event_types_supported":"Wedding","availability":true,"past_event_count":120,"reliability_score":0.9,"response_time_hours":5},{"vendor_id":"V100","vendor_name":"DJ Ultimate","vendor_type":"Entertainment","location_city":"NYC","price_range":1800,"rating":4.5,"review_count":130,"experience_years":9,"event_types_supported":"Party","availability":true,"past_event_count":260,"reliability_score":0.92,"response_time_hours":1}];
+
+const TYPE_CFG={
+  Catering:{bg:'rgba(184,145,58,0.15)',c:'#d4a84b',init:'CA'},
+  Venue:   {bg:'rgba(100,140,200,0.15)',c:'#7baee8',init:'VN'},
+  AV:      {bg:'rgba(160,100,200,0.15)',c:'#c48cec',init:'AV'},
+  Decor:   {bg:'rgba(200,100,140,0.15)',c:'#e88cb8',init:'DC'},
+  Entertainment:{bg:'rgba(80,180,120,0.15)',c:'#72d4a0',init:'EN'}
+};
+
+/* ─── SCORE ─── */
+function score(v){
+  const cs=100-Math.round(((v.price_range-1400)/(16000-1400))*100);
+  const rs=Math.round(((v.rating-1)/4)*100);
+  const es=Math.min(100,Math.round(v.experience_years*6.5));
+  const rl=Math.round(v.reliability_score*100);
+  const av=v.availability?100:0;
+  return Math.round(cs*0.20+rs*0.30+es*0.20+rl*0.20+av*0.10);
+}
+
+/* ─── STATE ─── */
+let shown=[...VD].map(v=>({...v,_s:score(v)})).sort((a,b)=>b._s-a._s);
+let litIds=new Set();
+let view='grid';
+let chatHistory=[];
+let busy=false;
+
+/* ─── CUSTOM CURSOR ─── */
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+document.addEventListener('mousemove',e=>{
+  cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';
+  ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';
+});
+
+/* ─── SCORE RING SVG ─── */
+function ringEl(s){
+  const r=17,circ=2*Math.PI*r,dash=circ*(s/100);
+  return `<svg viewBox="0 0 42 42" width="42" height="42">
+    <circle cx="21" cy="21" r="${r}" fill="none" stroke="rgba(184,145,58,0.12)" stroke-width="3"/>
+    <circle cx="21" cy="21" r="${r}" fill="none" stroke="rgba(184,145,58,0.7)" stroke-width="3"
+      stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ─── RENDER ─── */
+function render(){
+  const el=document.getElementById('results');
+  if(!shown.length){
+    el.innerHTML=`<div class="empty"><div class="empty-glyph">∅</div><div class="empty-text">No vendors match your criteria</div></div>`;
+    return;
+  }
+  if(view==='grid'){
+    el.innerHTML=`<div class="grid">${shown.map((v,i)=>cardHTML(v,i)).join('')}</div>`;
+  } else {
+    el.innerHTML=`<div class="list-wrap">
+      <div class="list-head"><span></span><span>Vendor</span><span>Price</span><span>Rating</span><span>Experience</span><span>Reliability</span><span>Avail.</span><span>Score</span></div>
+      ${shown.map((v,i)=>rowHTML(v,i)).join('')}
+    </div>`;
+  }
+  document.querySelectorAll('[data-vid]').forEach(el=>{
+    el.addEventListener('click',()=>openModal(el.dataset.vid));
+  });
+  updateHeader();
+}
+
+function cardHTML(v,i){
+  const cfg=TYPE_CFG[v.vendor_type]||{bg:'rgba(100,100,100,0.15)',c:'#aaa',init:'??'};
+  const lit=litIds.has(v.vendor_id)?'lit':'';
+  return `<div class="vcard ${lit}" data-vid="${v.vendor_id}" style="animation-delay:${Math.min(i*0.04,0.6)}s;">
+    <div class="vc-top">
+      <div class="vc-left">
+        <div class="type-gem" style="background:${cfg.bg};color:${cfg.c};">${cfg.init}</div>
+        <div>
+          <div class="vc-name">${v.vendor_name}</div>
+          <div class="vc-sub">${v.vendor_type} &middot; ${v.location_city}</div>
+        </div>
+      </div>
+      <div class="score-ring">${ringEl(v._s)}<span class="score-num">${v._s}</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="metrics">
+      <div class="metric"><div class="metric-val">$${v.price_range.toLocaleString()}</div><div class="metric-lab">Price</div></div>
+      <div class="metric"><div class="metric-val">${v.rating}/5</div><div class="metric-lab">Rating</div></div>
+      <div class="metric"><div class="metric-val">${v.experience_years}yr</div><div class="metric-lab">Exp.</div></div>
+      <div class="metric"><div class="metric-val">${Math.round(v.reliability_score*100)}%</div><div class="metric-lab">Reliability</div></div>
+    </div>
+    <div class="tags">
+      <span class="tag tag-mist">${v.event_types_supported}</span>
+      <span class="tag ${v.availability?'tag-green':'tag-red'}">${v.availability?'Available':'Booked'}</span>
+    </div>
+  </div>`;
+}
+
+function rowHTML(v,i){
+  const cfg=TYPE_CFG[v.vendor_type]||{bg:'rgba(100,100,100,0.15)',c:'#aaa',init:'??'};
+  const lit=litIds.has(v.vendor_id)?'lit':'';
+  return `<div class="vrow ${lit}" data-vid="${v.vendor_id}" style="animation-delay:${Math.min(i*0.02,0.5)}s;">
+    <div class="type-gem" style="background:${cfg.bg};color:${cfg.c};width:30px;height:30px;font-size:9px;border-radius:6px;">${cfg.init}</div>
+    <div><div class="vrow-name">${v.vendor_name}</div><div class="vrow-sub">${v.location_city}</div></div>
+    <div class="vrow-val">$${v.price_range.toLocaleString()}</div>
+    <div class="vrow-val">${v.rating}</div>
+    <div class="vrow-val">${v.experience_years} yr</div>
+    <div class="vrow-val">${Math.round(v.reliability_score*100)}%</div>
+    <span class="tag ${v.availability?'tag-green':'tag-red'}" style="font-size:9px;">${v.availability?'Yes':'No'}</span>
+    <div class="vrow-score">${v._s}</div>
+  </div>`;
+}
+
+function updateHeader(){
+  document.getElementById('h-shown').textContent=shown.length;
+  document.getElementById('h-avail').textContent=shown.filter(v=>v.availability).length;
+  const avg=shown.length?(shown.reduce((s,v)=>s+v.rating,0)/shown.length).toFixed(1):'—';
+  document.getElementById('h-avg').textContent=avg;
+  document.getElementById('main-count').textContent=shown.length+' result'+(shown.length===1?'':'s');
+}
+
+/* ─── FILTERS ─── */
+function applyFilters(){
+  const type=document.querySelector('#type-pills .pill.on')?.dataset.v||'all';
+  const evt=document.querySelector('#event-pills .pill.on')?.dataset.v||'all';
+  const minR=parseFloat(document.getElementById('sl-rating').value);
+  const maxP=parseInt(document.getElementById('sl-price').value);
+  const avOnly=document.getElementById('avail-toggle').checked;
+  const srt=document.getElementById('sort-sel').value;
+
+  shown=VD.map(v=>({...v,_s:score(v)})).filter(v=>{
+    if(type!=='all'&&v.vendor_type!==type)return false;
+    if(evt!=='all'&&v.event_types_supported!==evt)return false;
+    if(v.rating<minR)return false;
+    if(v.price_range>maxP)return false;
+    if(avOnly&&!v.availability)return false;
+    return true;
+  });
+
+  const sf={score:(a,b)=>b._s-a._s,rating:(a,b)=>b.rating-a.rating,price_asc:(a,b)=>a.price_range-b.price_range,price_desc:(a,b)=>b.price_range-a.price_range,experience:(a,b)=>b.experience_years-a.experience_years,reliability:(a,b)=>b.reliability_score-a.reliability_score};
+  shown.sort(sf[srt]||sf.score);
+  document.getElementById('main-label').textContent='All vendors';
+  render();
+}
+
+function resetAll(){
+  document.querySelectorAll('#type-pills .pill').forEach(p=>p.classList.toggle('on',p.dataset.v==='all'));
+  document.querySelectorAll('#event-pills .pill').forEach(p=>p.classList.toggle('on',p.dataset.v==='all'));
+  document.getElementById('sl-rating').value=4.0;document.getElementById('rv-rating').textContent='4.0';
+  document.getElementById('sl-price').value=16000;document.getElementById('rv-price').textContent='$16,000';
+  document.getElementById('avail-toggle').checked=true;
+  document.getElementById('sort-sel').value='score';
+  litIds.clear();applyFilters();
+}
+
+/* ─── PILL CLICKS ─── */
+document.querySelectorAll('#type-pills .pill').forEach(p=>p.addEventListener('click',()=>{document.querySelectorAll('#type-pills .pill').forEach(x=>x.classList.remove('on'));p.classList.add('on');}));
+document.querySelectorAll('#event-pills .pill').forEach(p=>p.addEventListener('click',()=>{document.querySelectorAll('#event-pills .pill').forEach(x=>x.classList.remove('on'));p.classList.add('on');}));
+document.getElementById('sl-rating').addEventListener('input',e=>{document.getElementById('rv-rating').textContent=parseFloat(e.target.value).toFixed(1);});
+document.getElementById('sl-price').addEventListener('input',e=>{document.getElementById('rv-price').textContent='$'+parseInt(e.target.value).toLocaleString();});
+
+function setView(v,btn){view=v;document.querySelectorAll('.vsw').forEach(b=>b.classList.remove('on'));btn.classList.add('on');render();}
+
+/* ─── MODAL ─── */
+function openModal(id){
+  const v=VD.find(x=>x.vendor_id===id);if(!v)return;
+  const s=score(v);const cfg=TYPE_CFG[v.vendor_type]||{};
+  document.getElementById('m-name').textContent=v.vendor_name;
+  document.getElementById('m-body').innerHTML=`
+    <div class="modal-tags">
+      <span class="tag tag-mist">${v.vendor_type}</span>
+      <span class="tag tag-mist">${v.event_types_supported}</span>
+      <span class="tag ${v.availability?'tag-green':'tag-red'}">${v.availability?'Available':'Unavailable'}</span>
+      <span class="tag tag-gold">Score ${s}/100</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-cell"><div class="detail-val">$${v.price_range.toLocaleString()}</div><div class="detail-lab">Price range</div></div>
+      <div class="detail-cell"><div class="detail-val">${v.rating} <span style="font-size:13px;color:var(--mist3)">/ 5</span></div><div class="detail-lab">Rating · ${v.review_count} reviews</div></div>
+      <div class="detail-cell"><div class="detail-val">${v.experience_years}</div><div class="detail-lab">Years experience</div></div>
+      <div class="detail-cell"><div class="detail-val">${Math.round(v.reliability_score*100)}%</div><div class="detail-lab">Reliability score</div></div>
+      <div class="detail-cell"><div class="detail-val">${v.past_event_count}</div><div class="detail-lab">Past events</div></div>
+      <div class="detail-cell"><div class="detail-val">${v.response_time_hours}h</div><div class="detail-lab">Response time</div></div>
+    </div>
+    <div class="bar-section">
+      ${barHTML('Rating quality',((v.rating-1)/4)*100)}
+      ${barHTML('Reliability',v.reliability_score*100)}
+      ${barHTML('Composite score',s)}
+    </div>
+    <div class="modal-id">${v.vendor_id} &middot; ${v.location_city}</div>`;
+  document.getElementById('overlay').classList.add('show');
+}
+function barHTML(label,pct){
+  return `<div class="bar-row">
+    <div class="bar-label-row"><span>${label}</span><span>${Math.round(pct)}%</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
+  </div>`;
+}
+function closeModal(){document.getElementById('overlay').classList.remove('show');}
+
+/* ─── CHAT ─── */
+// Build a lean, query-aware system prompt — only top 20 relevant vendors sent per call
+function buildSystem(query){
+  const q=(query||'').toLowerCase();
+  let pool=[...VD];
+
+  // Type hint detection
+  const typeMap={'catering':'Catering','venue':'Venue','audio visual':'AV',' av ':'AV','sound':'AV','decor':'Decor','floral':'Decor','flower':'Decor','lighting':'Decor','entertainment':'Entertainment','dj':'Entertainment','music':'Entertainment','band':'Entertainment'};
+  let typeHint=null;
+  for(const[k,v] of Object.entries(typeMap)){if(q.includes(k)){typeHint=v;break;}}
+  if(typeHint) pool=pool.filter(v=>v.vendor_type===typeHint);
+
+  // Event hint detection
+  const evtMap={'corporate':'Corporate','gala':'Corporate','conference':'Corporate','wedding':'Wedding','bridal':'Wedding','party':'Party','birthday':'Party','celebration':'Party'};
+  let evtHint=null;
+  for(const[k,v] of Object.entries(evtMap)){if(q.includes(k)){evtHint=v;break;}}
+  if(evtHint) pool=pool.filter(v=>v.event_types_supported===evtHint);
+
+  // Price hint detection
+  const pm=q.match(/\$(\d+)k?|\b(\d+)k\b|under\s+(\d+)/);
+  if(pm){
+    let p=parseInt(pm[1]||pm[2]||pm[3]);
+    if(q.includes('k')||p<500) p*=1000;
+    pool=pool.filter(v=>v.price_range<=p*1.4);
+  }
+
+  if(pool.length===0) pool=[...VD];
+
+  // Score and take top 20
+  const top=pool.map(v=>({...v,_s:score(v)})).sort((a,b)=>b._s-a._s).slice(0,20);
+
+  // Compact one-line format per vendor — far fewer tokens than JSON
+  const rows=top.map(v=>`${v.vendor_id}|${v.vendor_name}|${v.vendor_type}|${v.location_city}|$${v.price_range}|${v.rating}★|${v.experience_years}yr|${Math.round(v.reliability_score*100)}%|${v.availability?'avail':'booked'}|${v.event_types_supported}|score:${v._s}`).join('\n');
+
+  return `You are a refined AI vendor assistant for Atelier, an event production platform.
+
+LOCAL VENDORS (top ${top.length} relevant, full DB has 100):
+${rows}
+Format: id|name|type|city|price|rating|exp|reliability|avail|event|score
+
+SCORING: rating 30% + reliability 20% + experience 20% + cost_efficiency 20% + availability 10%
+
+RULES:
+- Local recommendations: emit [V:id|name|type|price|rating|score] for each, plus [F:type=X],[F:event=X],[F:maxprice=X] as needed.
+- Web search (different city, "find online", "search for"): use web_search tool.
+- Web results: plain text only, no [V:...] tokens.
+- Recommend top 3-5 with brief reasons. Be concise and professional.`;}
+
+function addBot(html){
+  const m=document.getElementById('chat-msgs');
+  const d=document.createElement('div');d.className='cmsg bot';
+  d.innerHTML=`<div class="cavatar bot">A</div><div class="cbubble">${html}</div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+function addUser(t){
+  const m=document.getElementById('chat-msgs');
+  const d=document.createElement('div');d.className='cmsg user';
+  d.innerHTML=`<div class="cavatar usr">Y</div><div class="cbubble">${t.replace(/</g,'&lt;')}</div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+function showTyping(){
+  const m=document.getElementById('chat-msgs');
+  const d=document.createElement('div');d.className='cmsg bot';d.id='tdots';
+  d.innerHTML=`<div class="cavatar bot">A</div><div class="cbubble"><div class="typing-bubble"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+function rmTyping(){const t=document.getElementById('tdots');if(t)t.remove();}
+
+function parseReply(raw){
+  let html=raw.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  const vms=[...raw.matchAll(/\[V:([^\]]+)\]/g)];
+  const fids=[];
+  for(const m of vms){
+    const[vid,vn,vt,vp,vr,vs]=m[1].split('|');
+    fids.push(vid);
+    const cfg=TYPE_CFG[vt]||{bg:'rgba(100,100,100,0.15)',c:'#aaa'};
+    const card=`<div class="chat-vcard" data-vid="${vid}" style="cursor:pointer;">
+      <div class="cvc-name">${vn}</div>
+      <div class="cvc-row">
+        <div class="cvc-meta">${vt} &middot; $${parseInt(vp).toLocaleString()} &middot; ★${parseFloat(vr).toFixed(1)}</div>
+        <div class="cvc-score">${vs}</div>
+      </div>
+    </div>`;
+    html=html.replace(m[0],card);
+  }
+  const fms=[...raw.matchAll(/\[F:([^\]]+)\]/g)];
+  for(const m of fms){
+    html=html.replace(m[0],'');
+    const[k,val]=m[1].split('=');
+    if(k==='type'){document.querySelectorAll('#type-pills .pill').forEach(p=>{p.classList.toggle('on',p.dataset.v===val||p.dataset.v==='all'&&val==='all');});}
+    else if(k==='event'){document.querySelectorAll('#event-pills .pill').forEach(p=>{p.classList.toggle('on',p.dataset.v===val||p.dataset.v==='all'&&val==='all');});}
+    else if(k==='maxprice'){const n=Math.min(parseInt(val),16000);document.getElementById('sl-price').value=n;document.getElementById('rv-price').textContent='$'+n.toLocaleString();}
+  }
+  if(fids.length){
+    litIds=new Set(fids);
+    shown=VD.filter(v=>fids.includes(v.vendor_id)).map(v=>({...v,_s:score(v)})).sort((a,b)=>fids.indexOf(a.vendor_id)-fids.indexOf(b.vendor_id));
+    document.getElementById('main-label').textContent='AI recommendations';
+    render();
+  }
+  return html;
+}
+
+async function callAPI(messages, systemPrompt){
+  const r=await fetch('/api/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1024,
+      system:systemPrompt,
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages
+    })
+  });
+  const d=await r.json();
+  if(!r.ok){
+    const msg=d.error?.message||('API error '+r.status);
+    throw new Error(msg);
+  }
+  return d;
+}
+
+function showSearchIndicator(query){
+  const m=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='cmsg bot';d.id='search-indicator';
+  d.innerHTML=`<div class="cavatar bot">A</div><div class="cbubble" style="display:flex;align-items:center;gap:8px;font-size:12px;color:#8c847c;">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;animation:spin 1s linear infinite;">
+      <circle cx="6" cy="6" r="5" stroke="rgba(184,145,58,0.3)" stroke-width="1.5"/>
+      <path d="M6 1a5 5 0 015 5" stroke="#b8913a" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    Searching the web for: <em style="color:#d4a84b;">${query.substring(0,60)}${query.length>60?'...':''}</em>
+  </div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+function rmSearchIndicator(){const e=document.getElementById('search-indicator');if(e)e.remove();}
+
+async function doSend(){
+  const inp=document.getElementById('cinput');
+  const t=inp.value.trim();if(!t||busy)return;
+  inp.value='';busy=true;
+  document.getElementById('sbtn').disabled=true;
+  addUser(t);
+  // Keep only last 6 turns to prevent token accumulation
+  if(chatHistory.length>12) chatHistory=chatHistory.slice(-12);
+  chatHistory.push({role:'user',content:t});
+  showTyping();
+
+  // Build a lean, query-specific system prompt — avoids token limit errors
+  const systemPrompt=buildSystem(t);
+
+  try{
+    // Agentic loop — keeps going until stop_reason is 'end_turn' (no more tool calls)
+    let messages=[...chatHistory];
+    let finalText='';
+    let iterations=0;
+
+    while(iterations<6){
+      iterations++;
+      const d=await callAPI(messages, systemPrompt);
+      const stopReason=d.stop_reason;
+      const content=d.content||[];
+
+      // Collect any text from this response
+      const textParts=content.filter(b=>b.type==='text').map(b=>b.text);
+      if(textParts.length) finalText+=textParts.join('');
+
+      // Check for tool use blocks
+      const toolUses=content.filter(b=>b.type==='tool_use');
+
+      if(!toolUses.length || stopReason==='end_turn'){
+        // No more tool calls — we're done
+        chatHistory.push({role:'assistant',content:content});
+        break;
+      }
+
+      // There are tool_use blocks — add assistant turn then process each tool
+      messages.push({role:'assistant',content:content});
+      const toolResults=[];
+
+      for(const tu of toolUses){
+        if(tu.name==='web_search'){
+          const query=tu.input?.query||'';
+          rmTyping();
+          showSearchIndicator(query);
+
+          // The actual search is done by Anthropic's infrastructure — we just pass back
+          // a tool_result with the content Anthropic already fetched (it's in tu directly
+          // for the web_search tool). But since browser-side we receive the search results
+          // embedded in the next response, we need to pass a placeholder result to continue.
+          // The web_search tool is server-side — results come back in the NEXT API response
+          // as a tool_result already included. We must send back an empty tool_result to continue.
+          toolResults.push({
+            type:'tool_result',
+            tool_use_id:tu.id,
+            content:'Search completed.'
+          });
+        }
+      }
+
+      // Add tool results and continue the loop
+      messages.push({role:'user',content:toolResults});
+      rmSearchIndicator();
+      showTyping();
+    }
+
+    rmTyping();
+    rmSearchIndicator();
+
+    // Extract final text from last assistant message
+    const lastAssistant=messages.filter(m=>m.role==='assistant').pop();
+    if(lastAssistant){
+      const lastContent=Array.isArray(lastAssistant.content)?lastAssistant.content:[];
+      finalText=lastContent.filter(b=>b.type==='text').map(b=>b.text).join('') || finalText;
+    }
+
+    // Sync chatHistory with full messages (including tool turns)
+    chatHistory=[...messages];
+
+    if(!finalText) finalText='I completed the search. Please ask a follow-up question.';
+    addBot(parseReply(finalText));
+    document.querySelectorAll('.chat-vcard[data-vid]').forEach(el=>el.addEventListener('click',()=>openModal(el.dataset.vid)));
+
+  }catch(e){
+    console.error(e);
+    rmTyping();
+    rmSearchIndicator();
+    if(e.message==='INVALID_KEY'){
+      addBot('<span style="color:#e08080">Invalid API key. Please refresh and enter a valid key.</span>');
+    } else {
+      addBot('<span style="color:#e08080">'+e.message+'</span>');
+    }
+  }
+  busy=false;
+  document.getElementById('sbtn').disabled=false;
+  inp.focus();
+}
+
+function qsend(t){document.getElementById('cinput').value=t;doSend();}
+document.getElementById('cinput').addEventListener('keydown',e=>{if(e.key==='Enter')doSend();});
+
+/* ─── INIT ─── */
+render();
+addBot('Welcome to <strong>Atelier</strong>. I have your full vendor database loaded — 100 vendors across Catering, Venue, AV, Decor, and Entertainment.<br><br>I can also <strong>search the internet</strong> for vendors outside the database — just ask me to "find vendors in Austin" or "search for wedding florists in Chicago" and I\'ll go online.<br><br>Describe your event and I\'ll surface the finest matches.');
+</script>
+</body>
+</html>

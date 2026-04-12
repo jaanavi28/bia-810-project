@@ -67,5 +67,10 @@ def chat_proxy():
     )
     return jsonify(resp.json()), resp.status_code
 
+@app.errorhandler(500)
+def internal_error(e):
+    import traceback
+    return f"<pre>{traceback.format_exc()}</pre>", 500
+
 if __name__ == "__main__":
     app.run(debug=True)

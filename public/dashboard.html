@@ -817,10 +817,6 @@ function rowHTML(v,i){
 }
 
 function updateHeader(){
-  document.getElementById('h-shown').textContent=shown.length;
-  document.getElementById('h-avail').textContent=shown.filter(v=>v.availability).length;
-  const avg=shown.length?(shown.reduce((s,v)=>s+v.rating,0)/shown.length).toFixed(1):'—';
-  document.getElementById('h-avg').textContent=avg;
   document.getElementById('main-count').textContent=shown.length+' result'+(shown.length===1?'':'s');
 }
 

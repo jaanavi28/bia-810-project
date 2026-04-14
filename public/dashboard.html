@@ -820,7 +820,24 @@ function openModal(id){
       ${barHTML('Reliability',v.reliability_score*100)}
       ${barHTML('Composite score',s)}
     </div>
-    <div class="modal-id">${v.vendor_id} &middot; ${v.location_city}</div>`;
+    <div class="modal-id">${v.vendor_id} &middot; ${v.location_city}</div>
+    <div style="margin-top:18px;display:flex;gap:10px;">
+      <a href="https://www.google.com/search?q=${encodeURIComponent(v.vendor_name+' '+v.location_city+' official website booking')}" target="_blank" rel="noopener"
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+               background:linear-gradient(135deg,var(--gold-dim),var(--gold));
+               color:var(--ink);font-weight:500;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;
+               padding:11px 16px;border-radius:6px;text-decoration:none;transition:opacity 0.18s;">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 8C2 4.686 4.686 2 8 2s6 2.686 6 6-2.686 6-6 6S2 11.314 2 8zm6-2.5v5m-2.5-2.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Book Now
+      </a>
+      <a href="https://www.google.com/search?q=${encodeURIComponent(v.vendor_name+' '+v.location_city)}" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;justify-content:center;gap:6px;
+               border:1px solid var(--line2);color:var(--mist2);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;
+               padding:11px 14px;border-radius:6px;text-decoration:none;transition:all 0.18s;white-space:nowrap;">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M6 2a6 6 0 100 12A6 6 0 006 2zm10 10l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Visit Website
+      </a>
+    </div>`;
   document.getElementById('overlay').classList.add('show');
 }
 function barHTML(label,pct){
@@ -877,7 +894,8 @@ RULES:
 - Local recommendations: emit [V:id|name|type|price|rating|score] for each, plus [F:type=X],[F:event=X],[F:maxprice=X] as needed.
 - Web search (different city, "find online", "search for"): use web_search tool.
 - Web results: plain text only, no [V:...] tokens.
-- Recommend top 3-5 with brief reasons. Be concise and professional.`;}
+- Recommend top 3-5 with brief reasons. Be concise and professional.
+- BOOKING: When a user wants to book or reserve a vendor, tell them to click the vendor card to open its detail panel, then click the gold "Book Now" button which will take them directly to the vendor's booking page. You can also provide a direct Google search link like: https://www.google.com/search?q=VENDOR+NAME+CITY+booking+reservation`;}
 
 function addBot(html){
   const m=document.getElementById('chat-msgs');
